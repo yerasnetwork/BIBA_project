@@ -7,12 +7,9 @@ function randomBetween(min: number, max: number, decimals = 0): number {
   return decimals > 0 ? parseFloat(val.toFixed(decimals)) : Math.round(val);
 }
 
-function generateVitals(prevVitals: Vitals): Vitals {
-  // 5% chance of a danger value to demonstrate alerts
-  const danger = Math.random() < 0.05;
-
+function generateVitals(prevVitals: Vitals, forceDanger = false): Vitals {
   let heartRate: number;
-  if (danger) {
+  if (forceDanger) {
     heartRate = Math.random() < 0.5
       ? randomBetween(85, 99)
       : randomBetween(181, 195);
@@ -22,11 +19,11 @@ function generateVitals(prevVitals: Vitals): Vitals {
     heartRate = Math.max(110, Math.min(170, prev + delta));
   }
 
-  const temperature = danger && Math.random() < 0.3
+  const temperature = forceDanger
     ? randomBetween(38.1, 38.8, 1)
     : randomBetween(365, 372, 1) / 10;
 
-  const oxygen = danger && Math.random() < 0.3
+  const oxygen = forceDanger
     ? randomBetween(88, 91)
     : randomBetween(95, 100);
 
@@ -42,16 +39,20 @@ export function useVitalsSimulator(active = true) {
   useEffect(() => {
     if (!active || !isConnected) return;
 
-    const interval = setInterval(() => {
-      const newVitals = generateVitals(vitals);
+    const tick = (forceDanger = false) => {
+      const newVitals = generateVitals(vitals, forceDanger);
       setVitals(newVitals);
-
       const now = new Date();
       const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-      const point: VitalsPoint = { time: timeStr, heartRate: newVitals.heartRate };
-      addVitalsPoint(point);
-    }, 3000);
+      addVitalsPoint({ time: timeStr, heartRate: newVitals.heartRate });
+    };
 
-    return () => clearInterval(interval);
+    const normalInterval = setInterval(() => tick(false), 3000);
+    const dangerInterval = setInterval(() => tick(true), 2 * 60 * 1000);
+
+    return () => {
+      clearInterval(normalInterval);
+      clearInterval(dangerInterval);
+    };
   }, [active, isConnected, vitals, setVitals, addVitalsPoint]);
 }
