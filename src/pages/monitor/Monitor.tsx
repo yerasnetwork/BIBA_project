@@ -1,11 +1,13 @@
-import React from 'react';
-import { Wifi, WifiOff, Clock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Wifi, WifiOff, Clock, Bell, BellOff } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useBabyStore } from '@/store/useBabyStore';
 import { Header } from '@/components/layout/Header';
 import { VitalCard } from '@/components/monitor/VitalCard';
 import { VitalsChart } from '@/components/monitor/VitalsChart';
+import { ManualAlarmModal } from '@/components/monitor/ManualAlarmModal';
 import { useVitalsSimulator } from '@/hooks/useVitalsSimulator';
+import { useAlarmSound } from '@/hooks/useAlarmSound';
 
 type VStatus = 'normal' | 'watch' | 'danger';
 
@@ -39,6 +41,27 @@ export default function Monitor() {
   const { vitals, vitalsHistory, alerts, isConnected, toggleConnection } = useBabyStore();
   const babyName = user?.babyName ?? 'Малыш';
 
+  const [alarmActive, setAlarmActive] = useState(false);
+  const { start: startAlarm, stop: stopAlarm } = useAlarmSound();
+
+  const handleAlarmToggle = () => {
+    if (alarmActive) {
+      stopAlarm();
+      setAlarmActive(false);
+    } else {
+      startAlarm();
+      setAlarmActive(true);
+    }
+  };
+
+  const handleAlarmStop = () => {
+    stopAlarm();
+    setAlarmActive(false);
+  };
+
+  // Stop alarm if component unmounts
+  useEffect(() => () => stopAlarm(), [stopAlarm]);
+
   const alertTypeIcon: Record<string, string> = {
     heartRate: '❤️', temperature: '🌡️', oxygen: '💧',
   };
@@ -66,6 +89,24 @@ export default function Monitor() {
           }`}>
             {isConnected ? 'Онлайн' : 'Оффлайн'}
           </span>
+        </button>
+
+        {/* Manual Alarm Button */}
+        <button
+          onClick={handleAlarmToggle}
+          className={`w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl font-semibold text-sm transition-all active:scale-95 ${
+            alarmActive
+              ? 'bg-red-600 text-white shadow-lg shadow-red-200 animate-pulse'
+              : 'bg-red-50 border-2 border-red-300 text-red-600 hover:bg-red-100'
+          }`}
+        >
+          {alarmActive ? <BellOff size={20} /> : <Bell size={20} />}
+          {alarmActive ? 'Остановить тревогу' : 'Включить тревогу'}
+          {alarmActive && (
+            <span className="ml-auto bg-white/20 text-white text-xs px-2 py-0.5 rounded-full">
+              Активна
+            </span>
+          )}
         </button>
 
         {/* Vitals grid */}
@@ -140,6 +181,10 @@ export default function Monitor() {
           )}
         </div>
       </div>
+
+      {alarmActive && (
+        <ManualAlarmModal vitals={vitals} onStop={handleAlarmStop} />
+      )}
     </div>
   );
 }
