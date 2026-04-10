@@ -1,0 +1,66 @@
+import { User } from '@/types';
+
+export const mockUsers: User[] = [
+  {
+    id: '1',
+    name: 'Гаухар Сейткали',
+    email: 'gaukhar@example.com',
+    city: 'Астана',
+    plan: 'premium',
+    createdAt: '2024-06-15',
+    income: 450000,
+    isSingleMom: false,
+    kidsCount: 1,
+    babyName: 'Айсана',
+    babyBirthdate: '2025-10-10',
+  },
+  {
+    id: '2',
+    name: 'Асем Нурланова',
+    email: 'asem@example.com',
+    city: 'Шымкент',
+    plan: 'free',
+    createdAt: '2024-09-01',
+    isSingleMom: true,
+    kidsCount: 2,
+    babyName: 'Дастан',
+    babyBirthdate: '2025-03-20',
+  },
+  {
+    id: '3',
+    name: 'Зарина Ахметова',
+    email: 'zarina@example.com',
+    city: 'Алматы',
+    plan: 'premium',
+    createdAt: '2024-08-10',
+    isSingleMom: false,
+    kidsCount: 1,
+    babyName: 'Тимур',
+    babyBirthdate: '2025-07-05',
+  },
+  {
+    id: '4',
+    name: 'Динара Касымова',
+    email: 'dinara@example.com',
+    city: 'Алматы',
+    plan: 'free',
+    createdAt: '2024-11-20',
+    isSingleMom: false,
+    kidsCount: 2,
+    babyName: 'Амира',
+    babyBirthdate: '2025-12-01',
+  },
+  {
+    id: '5',
+    name: 'Admin',
+    email: 'admin@lullabea.kz',
+    city: 'Астана',
+    plan: 'premium',
+    createdAt: '2024-01-01',
+  },
+];
+
+export const DEMO_ACCOUNTS = [
+  { label: 'Гаухар (Астана)', email: 'gaukhar@example.com', password: 'demo123' },
+  { label: 'Асем (Шымкент)', email: 'asem@example.com', password: 'demo123' },
+];
